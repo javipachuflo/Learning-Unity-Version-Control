@@ -34,6 +34,8 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+
+        readyToJump = true;
     }
 
     private void Update()
@@ -73,7 +75,13 @@ public class PlayerMovement : MonoBehaviour
         //calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-        rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        //on ground
+        if(grounded)
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        //in air
+        else if (!grounded)
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+
     }
 
     private void SpeedControl() { 
@@ -90,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
         //reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        rb.AddForce(transform.up * jumpForce, ForceMode.Force);
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
     private void ResetJump() {
